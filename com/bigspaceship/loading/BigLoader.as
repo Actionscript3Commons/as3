@@ -1,11 +1,11 @@
 /**
- * BigLoader by Big Spaceship. 2009-2010
+ * Standard by Big Spaceship. 2009-2010
  *
  * To contact Big Spaceship, email info@bigspaceship.com or write to us at 45 Main Street #716, Brooklyn, NY, 11201.
  * Visit http://labs.bigspaceship.com for documentation, updates and more free code.
  *
  *
- * Copyright (c) 2009-2010 Big Spaceship, LLC
+ * Copyright (c) 2009 Big Spaceship, LLC
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,15 +55,14 @@ package com.bigspaceship.loading
 	 *	
 	 *	Additionally <code>loader.add()</code> will return an instance of BigLoadItem which will also dispatch PROGRESS and COMPLETE events for itself.
 	 *	
-	 *	@dispatches 	Event.COMPLETE
-	 *	@dispatches 	ProgressEvent.PROGRESS
+	 *	@dispatches Event.COMPLETE
+	 *	@dispatches ProgressEvent.PROGRESS
 	 *	
-	 *  @langversion 	ActionScript 3
-	 *  @playerversion 	Flash 10.0.0
+	 *  @langversion ActionScript 3
+	 *  @playerversion Flash 10.0.0
 	 *
-	 *  @copyright 		2010 Big Spaceship, LLC
-	 *  @author 		Charlie Whitney
-	 *  @since 			18.08.2009
+	 *  @author Charlie Whitney, Jamie Kosoy
+	 *  @since  25.05.2010
 	 */
 	public class BigLoader extends EventDispatcher {
 		public static var verbose		:Boolean = true;
@@ -85,15 +84,14 @@ package com.bigspaceship.loading
 			_itemsToLoad = new Vector.<BigLoadItem>();
 		};
 
-		public function add($url:*, $id:String=null, $weight:int=1):BigLoadItem {
+		public function add($url:*, $id:String=null, $weight:int=1, $type:String = null):BigLoadItem {
 			if(_loaderActive){ _log("You can't add anything after the loader is started.");	return null; }
 			if($id == null) $id = $url;
 			
-			var _loadItem:BigLoadItem = new BigLoadItem($url, $id, $weight);
+			var _loadItem:BigLoadItem = new BigLoadItem($url, $id, $weight,$type);
 			_loadItem.addEventListener(ProgressEvent.PROGRESS, _onItemProgress, false, 999, true);
 			_loadItem.addEventListener(IOErrorEvent.IO_ERROR, _onItemLoadError, false, 999, true);
-			//_loadItem.addEventListener(Event.COMPLETE, _onItemLoadComplete, false, 999, true);
-			_loadItem.addEventListener('bigloaditemcomplete', _onItemLoadComplete, false, 999, true);
+			_loadItem.addEventListener(Event.COMPLETE, _onItemLoadComplete, false, 999, true);
 			
 			_itemsToLoad.push(_loadItem);
 			

@@ -64,6 +64,14 @@ package com.bigspaceship.api.facebook
 		private var _swfId			: String;
 		private var _loaderInfo		: LoaderInfo;
 		
+		
+		// jk: used w/ bss facebook api javascript
+		public static const FB_JS_NAMESPACE			: String	= "fbconnect";
+		public static const FB_JS_METHOD_IS_READY	: String	= "isReady";
+		public static const FB_JS_METHOD_LOGIN		: String 	= "login";
+		public static const FB_JS_METHOD_LOGOUT		: String	= "logout";
+		
+		
 		public function FacebookAuthManager()
 		{
 			super();
@@ -183,9 +191,9 @@ package com.bigspaceship.api.facebook
 					// jk: once that's done, JavaScript will send over the session and secret data that came along with an authenticated user, at which point we can verify that session is valid.						
 					if(_environment == FacebookEnvironment.CONNECT) {
 						if(ExternalInterface.available) {
-							var isReady:Boolean = ExternalInterface.call("fbconnect.isReady");
+							var isReady:Boolean = ExternalInterface.call(FB_JS_NAMESPACE + "." + FB_JS_METHOD_IS_READY);
 							Out.debug(this,"" + isReady);
-							if(isReady) ExternalInterface.call("fbconnect.login");
+							if(isReady) ExternalInterface.call(FB_JS_NAMESPACE + "." + FB_JS_METHOD_LOGIN);
 							else Out.fatal(this, "An error occurred connecting with JavaScript. Maybe you don't have the JavaScript file on your HTML?");
 						}
 						else {
@@ -252,7 +260,7 @@ package com.bigspaceship.api.facebook
 				_uid = null;
 				_api.logout();
 
-				if(ExternalInterface.available) ExternalInterface.call("fbconnect.logout");
+				if(ExternalInterface.available) ExternalInterface.call(FB_JS_NAMESPACE + "." + FB_JS_METHOD_LOGOUT);
 			}
 
 			dispatchEvent(new FacebookAuthEvent(FacebookAuthEvent.LOGOUT));

@@ -1,11 +1,11 @@
 /**
- * BigLoadItem by Big Spaceship. 2009-2010
+ * Standard by Big Spaceship. 2009-2010
  *
  * To contact Big Spaceship, email info@bigspaceship.com or write to us at 45 Main Street #716, Brooklyn, NY, 11201.
  * Visit http://labs.bigspaceship.com for documentation, updates and more free code.
  *
  *
- * Copyright (c) 2009-2010 Big Spaceship, LLC
+ * Copyright (c) 2009 Big Spaceship, LLC
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,16 +45,15 @@ package com.bigspaceship.loading
 	 *	loads accordingly, dispatching events on loading checkpoints.  Meant to wrap loadding in general to provide 
 	 *	common methods / events.
 	 *    
-	 *	@dispatches 	Event.COMPLETE
-	 *	@dispatches 	ProgressEvent.PROGRESS
-	 *	@dispatches 	IOErrorEvent.IO_ERROR
+	 *	@dispatches Event.COMPLETE
+	 *	@dispatches ProgressEvent.PROGRESS
+	 *	@dispatches IOErrorEvent.IO_ERROR
 	 *	
-	 *  @langversion 	ActionScript 3
-	 *  @playerversion 	Flash 9.0.0
-	 *  
-	 *  @copyright 		2010 Big Spaceship, LLC
-	 *  @author 		Charlie Whitney, Stephen Koch, Jamie Kosoy, Daniel Scheibel
-	 *  @since  		20.11.2009
+	 *  @langversion ActionScript 3
+	 *  @playerversion Flash 9.0.0
+	 *
+	 *  @author Charlie Whitney, Stephen Koch, Jamie Kosoy
+	 *  @since  25.05.2010
 	 */
     public class BigLoadItem extends EventDispatcher {
 
@@ -78,10 +77,6 @@ package com.bigspaceship.loading
         private var _attempts:int = 0;
 
         private var _pctLoaded:Number = 0.0;
-		
-		public function get weight():int{
-			return _weight;
-		}
 
         public function BigLoadItem($url:*, $id:String, $weight:int,$type:String = null){
             _url = $url;
@@ -120,13 +115,7 @@ package com.bigspaceship.loading
                 _state = LOADING;
 				
 				var req:URLRequest = (_url is URLRequest) ? _url : new URLRequest(_url);
-				if(Environment.IS_ON_SERVER){
-					var context:LoaderContext = new LoaderContext();
-					context.securityDomain = SecurityDomain.currentDomain;
-					_loader.load(req, context);
-				}else{
-					_loader.load(req);
-				}
+                _loader.load(req);
             }
             else if(_state == LOADED) _onComplete();
             else Out.warning(this,"Item is currently loading.");
@@ -178,7 +167,6 @@ package com.bigspaceship.loading
             _state      = LOADED;
             _pctLoaded  = 1;
             dispatchEvent(new Event(Event.COMPLETE));
-			dispatchEvent(new Event('bigloaditemcomplete'));
         };
 
         private function _onFail($evt:Event):void {

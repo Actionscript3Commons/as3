@@ -143,13 +143,13 @@ package com.bigspaceship.display
 		
 		
 		// in, extend these
-		protected function _buildIn():void { _mc.gotoAndPlay("IN_START"); }
+		protected function _animateIn():void { _mc.gotoAndPlay("IN_START"); }
 		
 		protected function _onAnimateIn():void{};
 		protected function _onAnimateInStart():void{};
 
 		// out, extend these
-		protected function _buildOut():void { _mc.gotoAndPlay("OUT_START"); }
+		protected function _animateOut():void { _mc.gotoAndPlay("OUT_START"); }
 		
 		protected function _onAnimateOutStart():void{};
 		protected function _onAnimateOut():void{};	
