@@ -141,6 +141,19 @@ package com.bigspaceship.display
 			}
 		}
 		
+		/**
+		 * Sets references to <code>null</code> and removes all event listeners.
+		 */
+		override public function destroy():void{
+			_mc.removeEventListener(AnimationEvent.INIT, _onAnimateInit_handler);
+			_mc.removeEventListener(AnimationEvent.IN_START, _onAnimateInStart_handler);
+			_mc.removeEventListener(AnimationEvent.IN, _onAnimateIn_handler);
+			_mc.removeEventListener(AnimationEvent.OUT_START, _onAnimateOutStart_handler);
+			_mc.removeEventListener(AnimationEvent.OUT, _onAnimateOut_handler);
+			_mc.removeEventListener(AnimationEvent.UPDATE, _onAnimateUpdate_handler);
+			super.destroy();
+		}
+		
 		
 		// in, extend these
 		protected function _animateIn():void { _mc.gotoAndPlay("IN_START"); }
