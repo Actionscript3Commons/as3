@@ -91,7 +91,7 @@ package com.bigspaceship.loading
 			var _loadItem:BigLoadItem = new BigLoadItem($url, $id, $weight,$type);
 			_loadItem.addEventListener(ProgressEvent.PROGRESS, _onItemProgress, false, 999, true);
 			_loadItem.addEventListener(IOErrorEvent.IO_ERROR, _onItemLoadError, false, 999, true);
-			_loadItem.addEventListener(Event.COMPLETE, _onItemLoadComplete, false, 999, true);
+			_loadItem.addEventListener('bigloaditemcomplete', _onItemLoadComplete, false, 999, true);
 			
 			_itemsToLoad.push(_loadItem);
 			

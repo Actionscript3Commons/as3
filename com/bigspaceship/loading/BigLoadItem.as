@@ -115,7 +115,13 @@ package com.bigspaceship.loading
                 _state = LOADING;
 				
 				var req:URLRequest = (_url is URLRequest) ? _url : new URLRequest(_url);
-                _loader.load(req);
+	  			if(Environment.IS_ON_SERVER){
+					var context:LoaderContext = new LoaderContext();
+ 					context.securityDomain = SecurityDomain.currentDomain;
+ 					_loader.load(req, context);
+ 				}else{
+ 					_loader.load(req);
+ 				}
             }
             else if(_state == LOADED) _onComplete();
             else Out.warning(this,"Item is currently loading.");
@@ -167,6 +173,7 @@ package com.bigspaceship.loading
             _state      = LOADED;
             _pctLoaded  = 1;
             dispatchEvent(new Event(Event.COMPLETE));
+			dispatchEvent(new Event('bigloaditemcomplete'));
         };
 
         private function _onFail($evt:Event):void {

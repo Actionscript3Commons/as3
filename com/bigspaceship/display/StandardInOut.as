@@ -119,7 +119,7 @@ package com.bigspaceship.display
 			_mc.visible = true;
 			if((_curState != AnimationState.IN_START && _curState != AnimationState.IN) || $forceAnim ){
 				//trace("animateIn");
-				_buildIn();
+				_animateIn();
 				_curState = AnimationState.IN_START;
 			}else if(_curState == AnimationState.IN && _dispatchCompleteOnUnchangedState){
 				dispatchEvent(new AnimationEvent(AnimationEvent.IN));
@@ -135,7 +135,7 @@ package com.bigspaceship.display
 			//trace("animate out called");
 			if((_curState == AnimationState.IN && _curState != AnimationState.OUT_START && _curState != AnimationState.OUT) || $forceAnim){
 				_curState = AnimationState.OUT_START;
-				_buildOut();
+				_animateOut();
 			}else if(_curState == AnimationState.OUT && _dispatchCompleteOnUnchangedState){
 				dispatchEvent(new AnimationEvent(AnimationEvent.OUT));
 			}
