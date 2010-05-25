@@ -29,6 +29,7 @@
  
 package com.bigspaceship.utils{
 
+	import flash.system.Security;
 	import flash.system.Capabilities;
 	import flash.net.LocalConnection;
 	
