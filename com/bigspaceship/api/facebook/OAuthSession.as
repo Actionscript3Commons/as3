@@ -29,7 +29,7 @@
 package com.bigspaceship.api.facebook
 {
 	/**
-	 * FacebookAuthManager
+	 * OAuthSession
 	 *
 	 * @copyright 		2010 Big Spaceship, LLC
 	 * @author			Jamie Kosoy
@@ -38,7 +38,7 @@ package com.bigspaceship.api.facebook
 	 * @playerversion 	Flash 9.0.0
 	 *
 	 */	
-	public class FacebookOAuthSession
+	public class OAuthSession
 	{
 		private var _api_key		:String;
 		private var _access_token	:String;
@@ -50,7 +50,7 @@ package com.bigspaceship.api.facebook
 		
 		private var _perms			:Array;
 		
-		public function FacebookOAuthSession($api_key:String,$sessionData:Object,$perms:String) {
+		public function OAuthSession($api_key:String,$sessionData:Object,$perms:String) {
 			_api_key = $api_key;
 			_access_token = $sessionData.access_token;
 			_expires = $sessionData.expires; 
