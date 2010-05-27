@@ -66,7 +66,9 @@ package com.bigspaceship.api.facebook
 		public function get session():OAuthSession { return _session; }
 		
 		public function initialize():void {
-			ExternalInterface.call("com.bigspaceship.api.facebook.OAuthBridge.initialize");		
+               if(Environment.IS_IN_BROWSER){
+     			ExternalInterface.call("com.bigspaceship.api.facebook.OAuthBridge.initialize");		
+               }
 		}
 
 		// login
