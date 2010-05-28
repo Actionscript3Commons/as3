@@ -236,6 +236,12 @@ package com.bigspaceship.display
 			    	case 'MOUSE_DOWN':
 			    		_btn.addEventListener(MouseEvent.MOUSE_DOWN, _onMouseDown_handler, false, 0, _useWeakReference);
 			    		break;
+				case 'SELECT':
+					_selectAnimStartLabel = "SELECT";
+					break;
+				case 'DESELECT':
+					_deselectAnimStartLabel = "DESELECT";
+					break;
 			    }
 			}
 			// sk: active? at this point, we are
