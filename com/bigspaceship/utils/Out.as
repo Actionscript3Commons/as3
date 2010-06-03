@@ -33,7 +33,7 @@ package com.bigspaceship.utils
 	import flash.display.Stage;
 	import flash.events.EventDispatcher;
 	import flash.utils.getQualifiedClassName;
-	import com.bigspaceship.utils.out.adaptors.IOutAdapter;
+	import com.bigspaceship.utils.out.adapters.IOutAdapter;
 	
 	/**
 	 * Out
