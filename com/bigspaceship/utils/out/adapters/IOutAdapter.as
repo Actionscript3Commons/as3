@@ -26,7 +26,7 @@
  * THE SOFTWARE.
  *
  **/
-package com.bigspaceship.utils.out.adaptors
+package com.bigspaceship.utils.out.adapters
 {
 	/**
 	 * 
