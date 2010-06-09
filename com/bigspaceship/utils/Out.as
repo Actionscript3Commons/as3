@@ -236,9 +236,12 @@ package com.bigspaceship.utils
 				output += " "+$objects[k].toString();
 			}
 			
+			// if additional adapters are enabled
 			if(__debuggers.length){
 				for each(var j:IOutAdapter in __debuggers) j.output.apply(null, [prefix, $level].concat($objects) );
 			}
+			
+			trace(output);
 			
 			i.dispatchEvent(new OutEvent(OutEvent.ALL, 	output));
 			i.dispatchEvent(new OutEvent($type,           	output));
