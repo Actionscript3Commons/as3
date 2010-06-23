@@ -94,13 +94,11 @@ package com.bigspaceship.api.facebook
 			{
 				try
 				{
-					ExternalInterface.call("com.bigspaceship.api.facebook.OAuthBridge.initialize");					
+					ExternalInterface.call("com.bigspaceship.api.facebook.OAuthBridge.initialize");
 				}catch( $e:Error ) { Out.debug( this, 'error: ' + $e ); }
-			}else
-			{
-				_logoutHandler();
 			}
-		}
+			_logoutHandler();
+		};
 
 		// login
 		// jk: options should follow Facebook's documentation:
@@ -219,6 +217,5 @@ package com.bigspaceship.api.facebook
 			if( _loaderInfo.parameters[$id] && _loaderInfo.parameters[$id] != "" ) return _loaderInfo.parameters[$id];
 			return null;
 		};
-
 	}
 }

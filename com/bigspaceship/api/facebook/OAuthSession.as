@@ -28,6 +28,7 @@
  **/
 package com.bigspaceship.api.facebook
 {
+	import com.bigspaceship.utils.Out;
 	/**
 	 * OAuthSession
 	 *
@@ -62,6 +63,19 @@ package com.bigspaceship.api.facebook
 		public function get session_key():String { return _session_key; }
 		public function get sig():String { return _sig; }
 		public function get uid():String { return _uid; }
-	
+		
+		public function toString():String
+		{
+			var output:String = "\n===============================\n";
+				output += "\taccess_token: " + _access_token + "\n";
+				output += "\texpires: " + _expires + "\n";
+				output += "\tsecret: " + _secret + "\n";
+				output += "\tsession_key: " + _session_key + "\n";
+				output += "\tsig: " + _sig + "\n";
+				output += "\tuid: " + _uid + "\n";
+				output += "===============================";
+			
+			return output;
+		};
 	}
 }
