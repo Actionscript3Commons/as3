@@ -1,5 +1,5 @@
 /**
- * FacebookEnvironment by Big Spaceship. 2010
+ * OAuthPerms by Big Spaceship. 2010
  *
  * To contact Big Spaceship, email info@bigspaceship.com or write to us at 45 Main Street #716, Brooklyn, NY, 11201.
  * Visit http://labs.bigspaceship.com for documentation, updates and more free code.
@@ -29,20 +29,25 @@
 package com.bigspaceship.api.facebook
 {
 	/**
-	 * FacebookEnvironment
+	 * OAuthPerms
 	 *
 	 * @copyright 		2010 Big Spaceship, LLC
-	 * @author			Jamie Kosoy
+	 * @author			Stephen Koch
 	 * @version			1.0
-	 * @langversion		ActionScript 3.0 			
+	 * @langversion		ActionScript 3.0
 	 * @playerversion 	Flash 9.0.0
 	 *
 	 */	
-	public class FacebookEnvironment
+	public class OAuthPerms
 	{
-		public static const ON_FB_NOT_LOGGED_IN			:String = "fbUserNotLoggedIn";
-		public static const ON_FB_AUTHORIZED			:String = "fbUserAuthenticated";
-		public static const ON_FB_NOT_AUTHORIZED		:String = "fbUserNotAuthenticated";		
-		public static const CONNECT						:String = "fbConnect";
+		private var _perms			:Array;
+		
+		public function OAuthPerms( $perms:String )
+		{
+			_perms = $perms.split(",");
+		};
+		
+		public function hasPermission($permission:String):Boolean { return _perms.indexOf($permission) > -1; };
+	
 	}
 }
