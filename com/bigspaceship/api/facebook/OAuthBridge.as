@@ -67,7 +67,7 @@ package com.bigspaceship.api.facebook
 					ExternalInterface.addCallback("handleFacebookLogin",_loginHandler);
 					ExternalInterface.addCallback("handleFacebookLogout",_logoutHandler);
 					ExternalInterface.addCallback("handleFacebookLoginCancel",_loginCancelHandler);					
-				}catch( $e:Error ) { Out.debug( this, 'error: ' + $e ); }
+				}catch( $e:Error ) { Out.error( this, 'error: ' + $e ); }
 			}
 			else {
 				Out.warning(this,"ExternalInterface isn't available. Will use debug session instead if passed in..."); 
@@ -95,7 +95,7 @@ package com.bigspaceship.api.facebook
 				try
 				{
 					ExternalInterface.call("com.bigspaceship.api.facebook.OAuthBridge.initialize");
-				}catch( $e:Error ) { Out.debug( this, 'error: ' + $e ); }
+				}catch( $e:Error ) { Out.error( this, 'error: ' + $e ); }
 			}
 			_logoutHandler();
 		};
@@ -148,12 +148,12 @@ package com.bigspaceship.api.facebook
 
 		// logout
 		public function logout():void { 
-			if( Environment.IS_IN_BROWSER )
+			if( Environment.IS_IN_BROWSER && ExternalInterface.available )
 			{
 				try
 				{
 					ExternalInterface.call("com.bigspaceship.api.facebook.OAuthBridge.logout");
-				}catch( $e:Error ) { Out.debug( this, 'error: ' + $e ); }
+				}catch( $e:Error ) { Out.error( this, 'error: ' + $e ); }
 			}
 			else _logoutHandler();
 		}
