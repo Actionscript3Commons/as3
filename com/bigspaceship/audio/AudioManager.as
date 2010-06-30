@@ -160,7 +160,7 @@ package com.bigspaceship.audio{
  	     *  @param $restart Boolean to specify if sounds needs to restart if it's already playing.
 		 *
      	*/ 
-		public function playSound($id:String, $loops:Number = 1, $vol:Number = 1, $restart:Boolean = false):void{	
+		public function playSound($id:String, $loops:int = 1, $vol:Number = 1, $restart:Boolean = false):void{	
 			//_startMusic($id);
 			if(!_mute){
 				if(_getSoundInstance($id)){
@@ -191,7 +191,7 @@ package com.bigspaceship.audio{
 		 *
 	     *  @return SoundChannel 
      	*/ 
-		public function playEffectSound($id:String, $killSameEffectSoundfirst:Boolean = false, $loops:Number = 1, $vol:Number = 1, $panning:Number=0):SoundChannel{
+		public function playEffectSound($id:String, $killSameEffectSoundfirst:Boolean = false, $loops:int = 1, $vol:Number = 1, $panning:Number=0):SoundChannel{
 			if(!_mute){
 				if(_effectsChannels[$id] && $killSameEffectSoundfirst){
 					SoundChannel(_effectsChannels[$id]).stop();
@@ -219,7 +219,7 @@ package com.bigspaceship.audio{
 		 *
 	     *  @return SoundChannel 
      	*/  
-		public function playRandomEffectSound($set:Array, $nonStandard:int = 2, $vol:Number = 1, $loops:Number = 1):SoundChannel{
+		public function playRandomEffectSound($set:Array, $nonStandard:int = 2, $vol:Number = 1, $loops:int = 1):SoundChannel{
 			 if(!_mute){
 				var random:int = int(Math.random()*($set.length-$nonStandard));
 				var id:String = $set[random];
@@ -243,7 +243,7 @@ package com.bigspaceship.audio{
 		 * @return SoundChannel
 		 * 
 		 */		
-		public function playSequencedEffectSound($id:String, $range:int, $vol:Number = 1, $loops:Number = 1):SoundChannel{
+		public function playSequencedEffectSound($id:String, $range:int, $vol:Number = 1, $loops:int = 1):SoundChannel{
 			if(!_mute){
 				if(_sequenceDic[$id]!=null){
 					_sequenceDic[$id] = _sequenceDic[$id] + 1;

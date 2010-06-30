@@ -33,12 +33,16 @@ package com.bigspaceship.loading
     import flash.events.ProgressEvent;
     import flash.events.IOErrorEvent;
 
+	import flash.system.LoaderContext;
+	import flash.system.SecurityDomain;
+
     import flash.display.Loader;
 
     import flash.net.URLLoader;
     import flash.net.URLRequest;
 
     import com.bigspaceship.utils.Out;
+    import com.bigspaceship.utils.Environment;
 
 	/**
 	 *  A single item loader to be used with BigLoader (not instanciated directly).  It handles different media and
