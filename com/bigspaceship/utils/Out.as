@@ -29,11 +29,11 @@
 package com.bigspaceship.utils
 {
 	import com.bigspaceship.events.OutEvent;
+	import com.bigspaceship.utils.out.adaptors.IOutAdapter;
 	
 	import flash.display.Stage;
 	import flash.events.EventDispatcher;
 	import flash.utils.getQualifiedClassName;
-	import com.bigspaceship.utils.out.adaptors.IOutAdapter;
 	
 	/**
 	 * Out
