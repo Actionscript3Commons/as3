@@ -75,9 +75,12 @@ package com.bigspaceship.loading
 		private var _activeLoads	:int = 0;
 		private var _numComplete	:int = 0;
 		private var _loaderActive	:Boolean = false;
-		
 		private var _totalWeight	:int;
-
+		private var _loadComplete	:Boolean = false;
+		
+		public function get loadComplete():Boolean{
+			return _loadComplete;
+		}
 
 		public function BigLoader() {
 			_totalWeight = 0;
@@ -96,7 +99,7 @@ package com.bigspaceship.loading
 			_itemsToLoad.push(_loadItem);
 			
 			_totalWeight += $weight;
-			
+			_loadComplete = false;
 			return _loadItem;
 		};
 		
@@ -125,7 +128,10 @@ package com.bigspaceship.loading
 		 *	Returns the BigLoadItem instance for the passed ID.
 		 */
 		public function getLoadedItemById($id:String):* {
-			if(_itemsComplete[$id] == null) _log("Warning: Asset not loaded yet.");
+			if(_itemsComplete[$id] == null) {
+				_log("Warning: Asset not loaded yet.");
+				return null;
+			}
 			return _itemsComplete[$id];
 		};
 		
@@ -133,7 +139,10 @@ package com.bigspaceship.loading
 		 *	Returns the asset from the BigLoadItem instance for the passed ID
 		 */
 		public function getLoadedAssetById($id:String):* {
-			if(_itemsComplete[$id] == null) _log("Warning: Asset not loaded yet.");
+			if(_itemsComplete[$id] == null){ 
+				_log("Warning: Asset not loaded yet.");
+				return null;
+			}
 			return BigLoadItem(_itemsComplete[$id]).content;
 		};
 		
@@ -201,7 +210,7 @@ package com.bigspaceship.loading
 		
 		private function _allLoadsComplete():void {
 			_loaderActive = false;
-			
+			_loadComplete = true;
 			// dispatch all complete event
 			dispatchEvent( new Event(Event.COMPLETE) );
 		};
