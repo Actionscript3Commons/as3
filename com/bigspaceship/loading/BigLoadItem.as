@@ -119,7 +119,7 @@ package com.bigspaceship.loading
                 _state = LOADING;
 				
 				var req:URLRequest = (_url is URLRequest) ? _url : new URLRequest(_url);
-	  			if(Environment.IS_ON_SERVER){
+	  			if(Environment.IS_ON_SERVER && _type == BigLoadItem.MEDIA){
 					var context:LoaderContext = new LoaderContext();
  					context.securityDomain = SecurityDomain.currentDomain;
  					_loader.load(req, context);
