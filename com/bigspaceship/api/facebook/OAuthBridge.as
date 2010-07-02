@@ -77,7 +77,10 @@ package com.bigspaceship.api.facebook
 		
 		public function get session():OAuthSession { return _session; }
 		
-		public function hasPermission( $permission:String ):Boolean { return _perms.hasPermission( $permission ); };
+		public function hasPermission( $permission:String ):Boolean{
+			if(!_perms) return false;
+			return _perms.hasPermission( $permission );
+		};
 
 		public function initialize( $loaderInfo:LoaderInfo ):void {
 			
