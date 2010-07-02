@@ -115,12 +115,18 @@ package com.bigspaceship.api.facebook
 					$options = _url;
 				}
 				
-				// sk: same method name, different implementation depending on use (using FBJS or using iframe)
-				//		else we are opening the url in the same page using FBML Bridge
-				if( _getFlashVar( 'fb_environment' ).toLowerCase() == "iframe" )
-					ExternalInterface.call("com.bigspaceship.api.facebook.OAuthBridge.login",$options);
-				else if( _getFlashVar( 'fb_environment' ).toLowerCase() == "fbml" )
-					_openURL( String( $options ) );
+				switch(_getFlashVar( 'fb_environment' ).toLowerCase())
+				{
+					case 'fbml':
+						_openURL( String( $options ) );
+					break;
+
+					default:
+					case 'iframe':
+					case 'connect':
+						ExternalInterface.call("com.bigspaceship.api.facebook.OAuthBridge.login",$options);
+					break;
+				}
 					
 			}else
 			{
