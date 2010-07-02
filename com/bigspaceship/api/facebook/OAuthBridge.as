@@ -77,7 +77,7 @@ package com.bigspaceship.api.facebook
 		
 		public function get session():OAuthSession { return _session; }
 		
-		public function hasPermission( $permission:String ):Boolean{
+		public function hasPermission( $permission:String ):Boolean { 
 			if(!_perms) return false;
 			return _perms.hasPermission( $permission );
 		};
@@ -111,14 +111,16 @@ package com.bigspaceship.api.facebook
 			if(Environment.IS_IN_BROWSER)
 			{
 				// sk: if we have a type we know we are not using FBJS to authenticate: just set the $options to the url after we build it from the permissions
-				var type:String = _getFlashVar( 'fb_type' );
-				if( type != '')
+				var fb_type:String = _getFlashVar( 'fb_type' );
+				if(fb_type && fb_type != '')
 				{
-					var _url:String = _getAuthorizationURL( $options.perms.split( ',' ), type );
+					var _url:String = _getAuthorizationURL( $options.perms.split( ',' ), fb_type );
 					$options = _url;
 				}
 				
-				switch(_getFlashVar( 'fb_environment' ).toLowerCase())
+				var fb_environment:String = _getFlashVar( 'fb_environment' ) || 'connect';
+
+				switch(fb_environment.toLowerCase())
 				{
 					case 'fbml':
 						_openURL( String( $options ) );
