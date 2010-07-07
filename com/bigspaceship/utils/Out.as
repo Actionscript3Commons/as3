@@ -29,7 +29,7 @@
 package com.bigspaceship.utils
 {
 	import com.bigspaceship.events.OutEvent;
-	import com.bigspaceship.utils.out.adaptors.IOutAdapter;
+	import com.bigspaceship.utils.out.adapters.IOutAdapter;
 	
 	import flash.display.Stage;
 	import flash.events.EventDispatcher;
