@@ -154,7 +154,8 @@ package com.bigspaceship.api.facebook
 		}
 		
 		private function _loginCancelHandler():void {
-			dispatchEvent(new FacebookAuthEvent(FacebookAuthEvent.LOGIN_PROCESS_COMPLETE));			
+			dispatchEvent(new FacebookAuthEvent(FacebookAuthEvent.LOGIN_CANCEL));			
+			dispatchEvent(new FacebookAuthEvent(FacebookAuthEvent.LOGIN_PROCESS_COMPLETE));
 		}
 
 		// logout
