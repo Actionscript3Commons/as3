@@ -123,8 +123,10 @@ package com.bigspaceship.display
 			}
 			_curState = AnimationState.INIT;
 			
-			//ds: add Listeners
+			// ADD LISTENERS TO HANDLE BUTTON EVENTS
 			addBtnEventListeners();
+			
+			// ADD LISTENERS FOR TIMELINE ANIMATION EVENTS 
 			var labels:Array = _mc.currentLabels;
 			_labels_obj = new Object();
 			for (var i:uint = 0; i < labels.length; i++) {
@@ -160,11 +162,6 @@ package com.bigspaceship.display
 			}
 			_mc.addEventListener(AnimationEvent.UPDATE, _onTimelineEvent_handler, false, 0, _useWeakReference);
 			
-			_btn.addEventListener(MouseEvent.ROLL_OVER, dispatchEvent, false, 0, _useWeakReference);
-			_btn.addEventListener(MouseEvent.ROLL_OUT, dispatchEvent, false, 0, _useWeakReference);
-			_btn.addEventListener(MouseEvent.MOUSE_UP, dispatchEvent, false, 0, _useWeakReference);
-			_btn.addEventListener(MouseEvent.MOUSE_DOWN, dispatchEvent, false, 0, _useWeakReference);
-			_btn.addEventListener(MouseEvent.CLICK, dispatchEvent, false, 0, _useWeakReference);
 		}
 		
 		public function deselect():void{
@@ -184,16 +181,7 @@ package com.bigspaceship.display
 		
 		override public function destroy():void{
 			
-			_btn.removeEventListener(MouseEvent.ROLL_OVER, _onMouseRollOver_handler);
-			_btn.removeEventListener(MouseEvent.ROLL_OVER, dispatchEvent);
-			_btn.removeEventListener(MouseEvent.ROLL_OUT, _onMouseRollOut_handler);
-			_btn.removeEventListener(MouseEvent.ROLL_OUT, dispatchEvent);
-			_btn.removeEventListener(MouseEvent.CLICK, _onMouseClick_handler);
-			_btn.removeEventListener(MouseEvent.CLICK, dispatchEvent);
-			_btn.removeEventListener(MouseEvent.MOUSE_UP, _onMouseUp_handler);
-			_btn.removeEventListener(MouseEvent.MOUSE_UP, dispatchEvent);
-			_btn.removeEventListener(MouseEvent.MOUSE_DOWN, _onMouseDown_handler);
-			_btn.removeEventListener(MouseEvent.MOUSE_DOWN, dispatchEvent);
+               removeBtnEventListeners();
 			_btn = null;
 			
 			_mc.removeEventListener(AnimationEvent.IN, _onTimelineEvent_handler);
@@ -244,16 +232,29 @@ package com.bigspaceship.display
 					break;
 			    }
 			}
+
+			_btn.addEventListener(MouseEvent.ROLL_OVER, dispatchEvent, false, 0, _useWeakReference);
+			_btn.addEventListener(MouseEvent.ROLL_OUT, dispatchEvent, false, 0, _useWeakReference);
+			_btn.addEventListener(MouseEvent.MOUSE_UP, dispatchEvent, false, 0, _useWeakReference);
+			_btn.addEventListener(MouseEvent.MOUSE_DOWN, dispatchEvent, false, 0, _useWeakReference);
+			_btn.addEventListener(MouseEvent.CLICK, dispatchEvent, false, 0, _useWeakReference);
+
 			// sk: active? at this point, we are
 			_active = true;
 		}
 		
 		protected function removeBtnEventListeners():void{
 			_btn.removeEventListener(MouseEvent.ROLL_OVER, _onMouseRollOver_handler);
+			_btn.removeEventListener(MouseEvent.ROLL_OVER, dispatchEvent);
 			_btn.removeEventListener(MouseEvent.ROLL_OUT, _onMouseRollOut_handler);
+			_btn.removeEventListener(MouseEvent.ROLL_OUT, dispatchEvent);
 			_btn.removeEventListener(MouseEvent.CLICK, _onMouseClick_handler);
+			_btn.removeEventListener(MouseEvent.CLICK, dispatchEvent);
 			_btn.removeEventListener(MouseEvent.MOUSE_UP, _onMouseUp_handler);
+			_btn.removeEventListener(MouseEvent.MOUSE_UP, dispatchEvent);
 			_btn.removeEventListener(MouseEvent.MOUSE_DOWN, _onMouseDown_handler);
+			_btn.removeEventListener(MouseEvent.MOUSE_DOWN, dispatchEvent);
+
 			// sk: active? at this point, we are not
 			_active = false;
 		}
