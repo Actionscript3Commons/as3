@@ -28,24 +28,33 @@
  **/
 package com.bigspaceship.loading
 {
+	import com.bigspaceship.utils.MathUtils;
+	import com.bigspaceship.utils.Out;
+	
 	import flash.display.Loader;
-	
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	
 	import flash.events.Event;
-	import flash.events.IOErrorEvent;
 	import flash.events.EventDispatcher;
+	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	
-	import flash.utils.Dictionary;
+	/**
+	 * Dispatched when all files are loaded.
+	 *
+	 * @eventType flash.events.Event
+	 **/
+	[Event(name="complete", type="flash.events.Event")]
 	
-	import com.bigspaceship.utils.Out;
+	/**
+	 * Dispatched during loading process.
+	 *
+	 * @eventType flash.events.ProgressEvent
+	 **/
+	[Event(name="progress", type="flash.events.ProgressEvent")]
 	
 	/**
 	 *  Multiple file loader.
 	 *	Basic syntax requires creation of an instance of BigLoader. To which assets can then be added.  
-	 *	Loader is started with "start" after all assets are queued.  All events dispatched are in relation to global load.
+	 *	Loader is started with "start".  All events dispatched are in relation to global load.
 	 *	<code>
 	 *		var l:BigLoader = new BigLoader();
 	 *		l.add("assets/myImage.jpg", "assetID", 234);	// parameters are (asset path, uniquie id [not required], weight in bytes [not required])
@@ -67,13 +76,13 @@ package com.bigspaceship.loading
 	public class BigLoader extends EventDispatcher {
 		public static var verbose		:Boolean = true;
 
-		private const MAX_CONNECTIONS	:int = 2;
+		private var _max_connections	:int = 2;
 
 		private var _itemsToLoad	:Vector.<BigLoadItem>;
-		private var _itemsComplete	:Dictionary = new Dictionary(true);
-		private var _curLoadIndex	:int = 0;
-		private var _activeLoads	:int = 0;
-		private var _numComplete	:int = 0;
+		private var _itemsLoading	:Vector.<BigLoadItem>;
+		private var _itemsLoaded	:Vector.<BigLoadItem>;
+		private var _items_dic		:Object;
+		
 		private var _loaderActive	:Boolean = false;
 		private var _totalWeight	:int;
 		private var _loadComplete	:Boolean = false;
@@ -81,83 +90,126 @@ package com.bigspaceship.loading
 		public function get loadComplete():Boolean{
 			return _loadComplete;
 		}
-
-		public function BigLoader() {
+		public function set max_connections($value:int):void{
+			_max_connections = ($value<1)?1:$value;
+		}
+		public function get max_connections():int{
+			return _max_connections;
+		}
+		
+		public function BigLoader($max_connections:int = 2) {
+			_max_connections = $max_connections;
 			_totalWeight = 0;
 			_itemsToLoad = new Vector.<BigLoadItem>();
+			_itemsLoading = new Vector.<BigLoadItem>();
+			_itemsLoaded = new Vector.<BigLoadItem>();
+			
+			_items_dic = new Object();
 		};
 
-		public function add($url:*, $id:String=null, $weight:int=1, $type:String = null):BigLoadItem {
-			if(_loaderActive){ _log("You can't add anything after the loader is started.");	return null; }
+		public function add($url:*, $id:String=null, $weight:int=1, $type:String = null, $priority:Number = 0):BigLoadItem {
+			//if(_loaderActive){ _log("You can't add anything after the loader is started.");	return null; }
 			if($id == null) $id = $url;
 			
-			var _loadItem:BigLoadItem = new BigLoadItem($url, $id, $weight,$type);
-			_loadItem.addEventListener(ProgressEvent.PROGRESS, _onItemProgress, false, 999, true);
-			_loadItem.addEventListener(IOErrorEvent.IO_ERROR, _onItemLoadError, false, 999, true);
-			_loadItem.addEventListener('bigloaditemcomplete', _onItemLoadComplete, false, 999, true);
+			var loadItem:BigLoadItem = new BigLoadItem($url, $id, $weight, $type, $priority);
+			loadItem.addEventListener(ProgressEvent.PROGRESS, _onItemProgress, false, 999, true);
+			loadItem.addEventListener(IOErrorEvent.IO_ERROR, _onItemLoadError, false, 999, true);
+			loadItem.addEventListener('bigloaditemcomplete', _onItemLoadComplete, false, 999, true);
 			
-			_itemsToLoad.push(_loadItem);
+			_itemsToLoad.push(loadItem);
+			_items_dic[loadItem.id] = loadItem;
 			
 			_totalWeight += $weight;
 			_loadComplete = false;
-			return _loadItem;
+			return loadItem;
 		};
 		
-		public function destroy():void
-		{
+		public function destroy():void{
 			for(var i:int=0;i<_itemsToLoad.length;i++) { _itemsToLoad[i].destroy(); }
 
 			_itemsToLoad = null;
-			_itemsComplete = null;
+			_itemsLoaded = null;
+			_itemsLoading = null;
 		};
 		
 		public function start():void {
 			if(_loaderActive){ _log("Loader is already started."); return; }
-			_log("Starting load of "+_itemsToLoad.length+" items.");
-			
 			_loaderActive = true;
-			
-			// load the maximum number possible
-			var numToLoad:int = (_itemsToLoad.length < MAX_CONNECTIONS) ? _itemsToLoad.length : MAX_CONNECTIONS;
-			while(_activeLoads < numToLoad){
-				_loadItem(_curLoadIndex);
-			}
+			_loadNextItems();
 		};
+		
+		public function stop():void{
+			if(!_loaderActive){ 
+				if(_loadComplete){
+					_log("Loader is already complete.");
+				}else{
+					_log("Loader is already stopped.");
+				}
+			}else{
+				_log("Loader stopped. Items loaded: "+_itemsLoaded.length+", items about to finish loading: "+_itemsLoading.length+", items to load: "+_itemsToLoad.length);
+				_loaderActive= false;
+			}
+		}
 		
 		/**
 		 *	Returns the BigLoadItem instance for the passed ID.
 		 */
-		public function getLoadedItemById($id:String):* {
-			if(_itemsComplete[$id] == null) {
-				_log("Warning: Asset not loaded yet.");
-				return null;
+		public function getBigLoadItemById($id:String):BigLoadItem {
+			var item:BigLoadItem = null;
+			if(_items_dic[$id] == null) {
+				_log("Warning: Id does not exist.");
+			}else {
+				//if(BigLoadItem(_items_dic[$id]).state != BigLoadItem.LOADED)_log("Warning: Asset not loaded yet.");
+				item = BigLoadItem(_items_dic[$id]);
 			}
-			return _itemsComplete[$id];
+			return item;
 		};
 		
 		/**
 		 *	Returns the asset from the BigLoadItem instance for the passed ID
 		 */
 		public function getLoadedAssetById($id:String):* {
-			if(_itemsComplete[$id] == null){ 
-				_log("Warning: Asset not loaded yet.");
-				return null;
-			}
-			return BigLoadItem(_itemsComplete[$id]).content;
+			var content:* = null;
+			if(getBigLoadItemById($id))content = getBigLoadItemById($id).content;
+			return content;
 		};
+		
+		public function logItemsToLoad():void{
+			_itemsToLoad.sort(_sortByPriority);
+			var str:String = '';
+			for(var ii:int=0; ii<_itemsToLoad.length; ii++){
+				str += _itemsToLoad[ii];
+			}
+			_log(str);
+		}
 		
 		// ---------------------------
 		// PRIVATE
 		// ---------------------------
-		private function _loadItem($index:int):void {
-			var nextItem:BigLoadItem = _itemsToLoad[$index];
-			nextItem.startLoad();
-			
-			_log("Starting load of "+nextItem);
-			
-			++_activeLoads;
-			++_curLoadIndex;
+		private function _loadNextItems():void {
+			if(_loaderActive){
+				// load the maximum number possible
+				var numToLoad:int = (_itemsToLoad.length < _max_connections) ? _itemsToLoad.length : _max_connections;
+				while(_itemsLoading.length < numToLoad){
+					//sort _itemsToLoad by priority: first element is most important
+					_itemsToLoad.sort(_sortByPriority);
+					var nextItem:BigLoadItem = _itemsToLoad.shift();
+					nextItem.startLoad();
+					_itemsLoading.push(nextItem);
+					_log("Starting load of "+nextItem+", items loaded: "+_itemsLoaded.length+", items loading: "+_itemsLoading.length+", items to load: "+_itemsToLoad.length);
+				}
+			}
 		};
+		
+		private function _sortByPriority(x:BigLoadItem, y:BigLoadItem):int{
+			var n:int = 0;
+			if(x.priority > y.priority){
+				n = -1;
+			}else if (x.priority < y.priority){
+				n = 1;
+			}
+			return n;
+		}
 		
 		private function _onItemProgress($evt:Event):void {
 			var totalPercent:Number = 0;
@@ -165,7 +217,6 @@ package com.bigspaceship.loading
 			while(--i > -1){
 				totalPercent += _itemsToLoad[i].getWeightedPercentage(_totalWeight);
 			}
-			
 			// totalPercent will be a number between 0-1
 			// ProgressEvent acts weird when you give it floats, so multiply by 100
 			dispatchEvent( new ProgressEvent(ProgressEvent.PROGRESS, false, false, totalPercent*100, 100) );
@@ -173,38 +224,35 @@ package com.bigspaceship.loading
 		
 		private function _onItemLoadError($evt:IOErrorEvent):void {
 			_log("Error loading item. "+$evt);
-			
-			_itemLoadedCleanup($evt);
+			_itemLoadedCleanup(BigLoadItem($evt.target));
 		};
 		
 		// when a single item completes its load
 		private function _onItemLoadComplete($evt:Event):void {
 			_log("Completed load of :: "+$evt.target);
 			// store content of loader
-			_itemsComplete[$evt.target.id] = $evt.target;
-			
-			// dispatch complete event
-			
-			
-			_itemLoadedCleanup($evt);
+			_itemLoadedCleanup(BigLoadItem($evt.target));
 		};
 		
 		// remove listeners, update counters
-		private function _itemLoadedCleanup($evt:Event):void {
+		private function _itemLoadedCleanup($item:BigLoadItem):void {
 			// remove events
-			$evt.target.removeEventListener(ProgressEvent.PROGRESS, _onItemProgress);
-			$evt.target.addEventListener(IOErrorEvent.IO_ERROR, _onItemLoadError);
-			$evt.target.removeEventListener(Event.COMPLETE, _onItemLoadComplete);
+			$item.removeEventListener(ProgressEvent.PROGRESS, _onItemProgress);
+			$item.addEventListener(IOErrorEvent.IO_ERROR, _onItemLoadError);
+			$item.removeEventListener(Event.COMPLETE, _onItemLoadComplete);
 			
-			// reduce number of loads
-			--_activeLoads;
+			// remove from _itemsLoading
+			if(_itemsLoading.indexOf($item) > -1){
+				_itemsLoading.splice(_itemsLoading.indexOf($item), 1);		
+			}
 			
 			// check if it should start another load
-			++_numComplete;
-			if(_numComplete == _itemsToLoad.length){
+			_itemsLoaded.push($item);
+			
+			if(_itemsToLoad.length + _itemsLoading.length == 0){
 				_allLoadsComplete();
-			}else if(_curLoadIndex < _itemsToLoad.length){
-				_loadItem(_curLoadIndex);
+			}else if(_itemsToLoad.length > 0){
+				_loadNextItems();
 			}
 		};
 		

@@ -33,6 +33,8 @@ package com.bigspaceship.display
 
 	public interface IStandard extends IEventDispatcher{
 		function get mc():MovieClip;
+		function get id():String;
+		function set id($val:String):void;
 		function destroy():void;
 	}
 }

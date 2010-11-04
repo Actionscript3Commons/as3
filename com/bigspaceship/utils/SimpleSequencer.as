@@ -1,11 +1,11 @@
 /**
- * SimpleSequencer by Big Spaceship. 2008-2010
+ * SimpleSequencer by Big Spaceship. 2008
  *
  * To contact Big Spaceship, email info@bigspaceship.com or write to us at 45 Main Street #716, Brooklyn, NY, 11201.
  * Visit http://labs.bigspaceship.com for documentation, updates and more free code.
  *
  *
- * Copyright (c) 2008-2010 Big Spaceship, LLC
+ * Copyright (c) 2009 Big Spaceship, LLC
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@
  **/
 package com.bigspaceship.utils{
 	
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -45,7 +46,7 @@ package com.bigspaceship.utils{
 	/**
 	 * SimpleSequencer
 	 *
-	 * @copyright 		2010 Big Spaceship, LLC
+	 * @copyright 		2008 Big Spaceship, LLC
 	 * @author			Daniel Scheibel, Stephen Koch
 	 * @version			1.0 
 	 * @langversion		ActionScript 3.0 			
@@ -64,15 +65,22 @@ package com.bigspaceship.utils{
 		private var _parallelActions_array:Array;
 		private var _timer_dic:Dictionary = new Dictionary();
 		
-		private var _sprite:Sprite = new Sprite();
+		private var _sprite:MovieClip = new MovieClip();
 		
-		public function SimpleSequencer($id:String){
-			//creating an "unique" id for debugging reasons
+		private var _isCancelled:Boolean = false;
+		
+		/**
+		 * The <code>SimpleSequencer</code> constructor
+		 * 
+		 * @param $id				A String that helps to identify the sequence while debugging.
+		 * 
+		 */
+		public function SimpleSequencer($id:String=''){
+			//creating an "unique" id for output-debugging reasons
 			_id = $id +'_'+ int(Math.random()*100);
 			
 			if(debug){
 				Out.debug(this, 'SimpleSequencer CONSTRUCTOR called, id:' +  _id);
-				
 				_sprite.addEventListener(Event.ENTER_FRAME, _onEnterFrame_handler);
 			}
 		}
@@ -98,18 +106,43 @@ package com.bigspaceship.utils{
 		 * 
 		 */		
 		public function addStep($stepId:Number, $target:EventDispatcher, $functionToCall:Function, $eventToListen:String, $args:Object=null):void{
-			var anim:Object = {type:'normal', target:$target, functionToCall:$functionToCall, eventToListen:$eventToListen, args:$args};
-			
+			var anim:Object = {stepId:$stepId, type:'normal', target:$target, functionToCall:$functionToCall, eventToListen:$eventToListen, args:$args};
+			_addStep(anim);
+		}
+		/**
+		 * The <code>addASynchStep</code> method
+		 * 
+		 * @param $stepId			Number
+		 * @param $target			EventDispatcher
+		 * @param $functionToCall	Function
+		 * @param $eventToListen	String
+		 * @param $args				Object
+		 * 
+		 */		
+		public function addASynchStep($stepId:Number, $functionToCall:Function, $args:Object=null):void{
+			var anim:Object = {stepId:$stepId, type:'asynch', functionToCall:$functionToCall, args:$args};
+			_addStep(anim);
+		}
+		
+		private function _addStep($anim_obj:Object):void{
 			var stepExists:Boolean = false;
 			for(var i:int=0; i<_animationSteps_array.length; i++){
-				if(_animationSteps_array[i].stepId == $stepId){
-					_animationSteps_array[i].array.push(anim);
+				if(_animationSteps_array[i].stepId == $anim_obj.stepId){
+					_animationSteps_array[i].array.push($anim_obj);
 					stepExists = true;
 				}
 			}
 			if(!stepExists){
-				_animationSteps_array.push({stepId:$stepId, array:new Array(anim)});
+				_animationSteps_array.push({stepId:$anim_obj.stepId, array:new Array($anim_obj)});
 			}
+		}
+		
+		/**
+		 * The <code>start</code> method starts the Sequence
+		 * 
+		 */		
+		public function cancel():void{
+			_isCancelled = true;
 		}
 		
 		/**
@@ -129,55 +162,48 @@ package com.bigspaceship.utils{
 				//addEventlisteners
 				var len:uint = _animationSteps_array[_countStep].array.length;
 
-				for(i = 0; i < len; i++)
-				{
+				for(i = 0; i < len; i++){
 					animObj = _animationSteps_array[_countStep].array[i];
-					switch(animObj.type)
-					{
+					switch(animObj.type){
 						case 'normal':
 							animObj.target.addEventListener(animObj.eventToListen, _onAnimationComplete);
 							break;
 						/* case 'bigTweenLite':
 							break; */
+						case 'asynch':
+							break;
 					}
 					newSemLockId();
 				}
 
-				for(i = 0; i < len; i++)
-				{
-					if(debug) Out.status(this, "i: " + i);
+				for(i = 0; i < len; i++){
+					//if(debug) Out.status(this, "i: " + i);
 					animObj = _animationSteps_array[_countStep].array[i];
-					switch (animObj.type)
-					{
+					switch (animObj.type){
 						case 'normal':
-							if(animObj.args && animObj.args.hasOwnProperty('delay'))
-							{
+						case 'asynch':
+							if(animObj.args && animObj.args.hasOwnProperty('delay')){
 								if(debug) Out.status(this, "delay: " + animObj.args.delay + ", _id = " + _id);
 
 								var timer:Timer = new Timer(animObj.args.delay, 1);
 								timer.addEventListener(TimerEvent.TIMER, _onTimerEvent_handler);
 								_timer_dic[timer] = animObj;
 								timer.start();
-							}else
-							{
-								if(debug) Out.debug(this, "_id = " + _id + ", animObj = " + animObj);
-								
- 								if(animObj.args && animObj.args.hasOwnProperty('functionToCallParams'))
-								{
+							}else{
+								//if(debug) Out.debug(this, "_id = " + _id + ", animObj = " + animObj);
+ 								if(animObj.args && animObj.args.hasOwnProperty('functionToCallParams')){
 									animObj.functionToCall.apply(null, animObj.args.functionToCallParams);
-								}else
-								{
+								}else{
 									animObj.functionToCall();
-								} 
+								}
+								if(animObj.type == 'asynch')_onAnimationComplete();
 							}
 							break;
 					}
 				}
-			}else
-			{
+			}else{
 				_onComplete();
-				if(debug)
-				{
+				if(debug){
 					Out.debug(this, 'no steps added!');
 				}
 			}
@@ -192,6 +218,7 @@ package com.bigspaceship.utils{
 			}else{
 				_timer_dic[$evt.target].functionToCall();
 			}
+			if(_timer_dic[$evt.target].type == 'asynch')_onAnimationComplete();
 			$evt.target.removeEventListener($evt.type, _onTimerEvent_handler);
 			delete _timer_dic[$evt.target];
 		}
@@ -215,11 +242,11 @@ package com.bigspaceship.utils{
 			Out.debug(this, 'sequence running: '+ _id + ', steps: '+ _animationSteps_array.length+', _countStep: '+ _countStep+ ', stepId: '+ _animationSteps_array[_countStep].stepId);
 		}
 		
-		private function _onAnimationComplete($evt:Event):void{
+		private function _onAnimationComplete($evt:Event=null):void{
 			if(debug){
-				Out.debug(this, '_onAnimationComplete: '+ $evt.target+', _id: '+ _id);
+				Out.debug(this, '_onAnimationComplete: '+ (($evt)?$evt.target:'aSynch call complete')+', _id: '+ _id);
 			}
-			$evt.target.removeEventListener($evt.type, _onAnimationComplete);
+			if($evt)$evt.target.removeEventListener($evt.type, _onAnimationComplete);
 			_parallelActions_array.pop();
 			_checkSemaphores();
 		}

@@ -83,6 +83,7 @@ package com.bigspaceship.display
 		public function destroy():void{
 			_mc = null;
 			_id = null;
+			_curState = null;
 		}
 	}
 }

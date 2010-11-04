@@ -64,10 +64,10 @@ package com.bigspaceship.display
 		
 		public function StandardCover($mc:MovieClip = null){
 			if(!$mc){
-				_mc = new MovieClip();
-				_mc.graphics.beginFill(0xff0000);
-				_mc.graphics.drawRect(0,0,100,100);
-				_mc.graphics.endFill();
+				$mc = new MovieClip();
+				$mc.graphics.beginFill(0xff0000);
+				$mc.graphics.drawRect(0,0,100,100);
+				$mc.graphics.endFill();
 			}
 			super($mc);
 			

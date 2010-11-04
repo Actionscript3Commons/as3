@@ -181,7 +181,7 @@ package com.bigspaceship.display
 		
 		override public function destroy():void{
 			
-               removeBtnEventListeners();
+			removeBtnEventListeners();
 			_btn = null;
 			
 			_mc.removeEventListener(AnimationEvent.IN, _onTimelineEvent_handler);

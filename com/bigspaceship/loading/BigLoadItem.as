@@ -28,21 +28,37 @@
  **/
 package com.bigspaceship.loading
 {
+    import com.bigspaceship.utils.Environment;
+    import com.bigspaceship.utils.Out;
+    
+    import flash.display.Loader;
     import flash.events.Event;
     import flash.events.EventDispatcher;
-    import flash.events.ProgressEvent;
     import flash.events.IOErrorEvent;
-
-	import flash.system.LoaderContext;
-	import flash.system.SecurityDomain;
-
-    import flash.display.Loader;
-
+    import flash.events.ProgressEvent;
     import flash.net.URLLoader;
     import flash.net.URLRequest;
-
-    import com.bigspaceship.utils.Out;
-    import com.bigspaceship.utils.Environment;
+    import flash.system.LoaderContext;
+    import flash.system.SecurityDomain;
+	
+	/**
+	 * Dispatched when loading is complete
+	 *
+	 * @eventType flash.events.Event
+	 **/
+	[Event(name="complete", type="flash.events.Event")]
+	/**
+	 * Dispatched while loading
+	 *
+	 * @eventType flash.events.Event
+	 **/
+	[Event(name="progress", type="flash.events.ProgressEvent")]
+	/**
+	 * Dispatched when an error occurs
+	 *
+	 * @eventType flash.events.Event
+	 **/
+	[Event(name="ioError", type="flash.events.IOErrorEvent")]
 
 	/**
 	 *  A single item loader to be used with BigLoader (not instanciated directly).  It handles different media and
@@ -67,32 +83,39 @@ package com.bigspaceship.loading
         public static const IDLE    :String = "idle";
         public static const LOADING :String = "loading";
         public static const LOADED  :String = "loaded";
-
+		
+		public var priority	:Number = 0;
+		
         private static const __MAX_ATTEMPTS :int = 3;
 
-        private var _url    :*;
-        private var _id     :String;
-        private var _type   :String;
-        private var _state  :String;
+        private var _url    	:*;
+        private var _id     	:String;
+        private var _type   	:String;
+        private var _state  	:String;
 
-        private var _weight :int;
-        private var _loader :*;
+        private var _weight 	:int;
+        private var _loader 	:*;
 
-        private var _attempts:int = 0;
+        private var _attempts	:int = 0;
 
         private var _pctLoaded:Number = 0.0;
 
-        public function BigLoadItem($url:*, $id:String, $weight:int,$type:String = null){
+        public function BigLoadItem($url:*, $id:String, $weight:int,$type:String = null, $priority:Number = 0){
             _url = $url;
             _id = $id;
             _weight = $weight;
+			priority = $priority;
 			
-
             // extract file extension
-			if($url is URLRequest) _type = DATA;
-            else if($type != null) _type = $type;
-            else
-            {
+			if($url is URLRequest) {
+				_type = DATA;
+			}else if(!($url is String)){
+				$url = $url.toString();
+			}
+            
+			if($type != null) {
+				_type = $type;
+			} else {
                 var ext:String = $url.substr($url.lastIndexOf(".")+1);
                 // switch to determine what kind of loader to use
                 switch(ext){
@@ -158,11 +181,13 @@ package com.bigspaceship.loading
                 _loader.addEventListener(IOErrorEvent.IO_ERROR,     _onFail,     false, 0, true);
                 _loader.addEventListener(ProgressEvent.PROGRESS,    _onProgress, false, 0, true);
                 _loader.addEventListener(Event.COMPLETE,            _onComplete, false, 0, true);
+				_loader.addEventListener(Event.OPEN,            	dispatchEvent, false, 0, true);
             }else if(_type == BigLoadItem.MEDIA) {
                 _loader = new Loader();
                 _loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,   _onFail,     false, 0, true);
                 _loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,  _onProgress, false, 0, true);
                 _loader.contentLoaderInfo.addEventListener(Event.COMPLETE,          _onComplete, false, 0, true);
+				_loader.contentLoaderInfo.addEventListener(Event.OPEN,            	dispatchEvent, false, 0, true);
             } else {
                 Out.fatal(this,"Loading unknown type.");
             }
@@ -193,13 +218,14 @@ package com.bigspaceship.loading
         // OVERRIDE
         // ===================================================================
         override public function toString():String {
-            return String("[BigLoadItem :: "+_id+"]");
+            return String("[BigLoadItem :: "+_id+", "+priority+"]");
         };
 
         // SET / GET
         // ===================================================================
         public function get type():String { return _type; };
         public function get id():String { return _id; };
+		public function get state():String { return _state; };
         public function get url():String { 
 			if(_url is URLRequest) return _url.url;
 			return _url; 
