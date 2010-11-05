@@ -96,7 +96,7 @@ package com.bigspaceship.loading
 		public function get max_connections():int{
 			return _max_connections;
 		}
-		public function highestPriority():Number{
+		public function get highestPriority():Number{
 			var priority:Number = 0;
 			if(_itemsToLoad.length>0){
 				_itemsToLoad[0].priority;
