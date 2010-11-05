@@ -114,7 +114,7 @@ package com.bigspaceship.loading
 			_items_dic = new Object();
 		};
 
-		public function add($url:*, $id:String=null, $weight:int=1, $type:String = null, $priority:Number = 0, $autoload:Boolean=false):BigLoadItem {
+		public function add($url:*, $id:String=null, $priority:Number = 0, $weight:int=1, $type:String = null, $autoload:Boolean=false):BigLoadItem {
 			//if(_loaderActive){ _log("You can't add anything after the loader is started.");	return null; }
 			if($id == null) $id = $url;
 			
