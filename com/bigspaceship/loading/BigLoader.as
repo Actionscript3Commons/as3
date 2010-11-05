@@ -57,12 +57,12 @@ package com.bigspaceship.loading
 	 *	Loader is started with "start".  All events dispatched are in relation to global load.
 	 *	<code>
 	 *		var l:BigLoader = new BigLoader();
-	 *		l.add("assets/myImage.jpg", "assetID", 234);	// parameters are (asset path, uniquie id [not required], weight in bytes [not required])
+	 *		l.add("assets/myImage.jpg", "assetID", 234, 100);	// parameters are (asset path, uniquie id [not required]], weight in bytes [not required], priority [not required])
 	 *		l.add("assets/audioLib.swf", null, 2700);
 	 *		l.start();
 	 *  </code>
 	 *	
-	 *	Additionally <code>loader.add()</code> will return an instance of BigLoadItem which will also dispatch PROGRESS and COMPLETE events for itself.
+	 *	Additionally <code>loader.add()</code> will return an instance of BigLoadItem which will also dispatch OPEN, PROGRESS, COMPLETE and IO_ERROR events for itself.
 	 *	
 	 *	@dispatches Event.COMPLETE
 	 *	@dispatches ProgressEvent.PROGRESS
@@ -70,7 +70,7 @@ package com.bigspaceship.loading
 	 *  @langversion ActionScript 3
 	 *  @playerversion Flash 10.0.0
 	 *
-	 *  @author Charlie Whitney, Jamie Kosoy
+	 *  @author Charlie Whitney, Jamie Kosoy, Daniel Scheibel
 	 *  @since  25.05.2010
 	 */
 	public class BigLoader extends EventDispatcher {
@@ -96,6 +96,13 @@ package com.bigspaceship.loading
 		public function get max_connections():int{
 			return _max_connections;
 		}
+		public function highestPriority():Number{
+			var priority:Number = 0;
+			if(_itemsToLoad.length>0){
+				_itemsToLoad[0].priority;
+			}
+			return priority;
+		}
 		
 		public function BigLoader($max_connections:int = 2) {
 			_max_connections = $max_connections;
@@ -107,7 +114,7 @@ package com.bigspaceship.loading
 			_items_dic = new Object();
 		};
 
-		public function add($url:*, $id:String=null, $weight:int=1, $type:String = null, $priority:Number = 0):BigLoadItem {
+		public function add($url:*, $id:String=null, $weight:int=1, $type:String = null, $priority:Number = 0, $autoload:Boolean=false):BigLoadItem {
 			//if(_loaderActive){ _log("You can't add anything after the loader is started.");	return null; }
 			if($id == null) $id = $url;
 			
@@ -121,6 +128,7 @@ package com.bigspaceship.loading
 			
 			_totalWeight += $weight;
 			_loadComplete = false;
+			if($autoload)start();
 			return loadItem;
 		};
 		
@@ -138,7 +146,7 @@ package com.bigspaceship.loading
 			_loadNextItems();
 		};
 		
-		public function stop():void{
+		public function stop($killCurrentLoad:Boolean=false):void{
 			if(!_loaderActive){ 
 				if(_loadComplete){
 					_log("Loader is already complete.");
@@ -214,9 +222,9 @@ package com.bigspaceship.loading
 		private function _onItemProgress($evt:Event):void {
 			var totalPercent:Number = 0;
 			var i:int=_itemsToLoad.length;
-			while(--i > -1){
-				totalPercent += _itemsToLoad[i].getWeightedPercentage(_totalWeight);
-			}
+			for (var key:String in _items_dic) { 
+				totalPercent += _items_dic[key].getWeightedPercentage(_totalWeight);
+			} 
 			// totalPercent will be a number between 0-1
 			// ProgressEvent acts weird when you give it floats, so multiply by 100
 			dispatchEvent( new ProgressEvent(ProgressEvent.PROGRESS, false, false, totalPercent*100, 100) );
@@ -265,7 +273,7 @@ package com.bigspaceship.loading
 		
 		// tracing
 		override public function toString():String {
-			return "[BigLoader: "+_itemsToLoad.length+" items]";
+			return "[BigLoader, (loaded: "+_itemsLoaded.length+", loading: "+_itemsLoading.length+", to load: "+_itemsToLoad.length+")]";
 		};
 		
 		// logging

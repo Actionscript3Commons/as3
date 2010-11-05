@@ -42,6 +42,12 @@ package com.bigspaceship.loading
     import flash.system.SecurityDomain;
 	
 	/**
+	 * Dispatched when a load operation starts.
+	 *
+	 * @eventType flash.events.Event
+	 **/
+	[Event(name="open", type="flash.events.Event")]
+	/**
 	 * Dispatched when loading is complete
 	 *
 	 * @eventType flash.events.Event
@@ -64,7 +70,8 @@ package com.bigspaceship.loading
 	 *  A single item loader to be used with BigLoader (not instanciated directly).  It handles different media and
 	 *	loads accordingly, dispatching events on loading checkpoints.  Meant to wrap loadding in general to provide 
 	 *	common methods / events.
-	 *    
+	 *  
+	 *  @dispatches Event.OPEN
 	 *	@dispatches Event.COMPLETE
 	 *	@dispatches ProgressEvent.PROGRESS
 	 *	@dispatches IOErrorEvent.IO_ERROR
@@ -72,7 +79,7 @@ package com.bigspaceship.loading
 	 *  @langversion ActionScript 3
 	 *  @playerversion Flash 9.0.0
 	 *
-	 *  @author Charlie Whitney, Stephen Koch, Jamie Kosoy
+	 *  @author Charlie Whitney, Stephen Koch, Jamie Kosoy, Daniel Scheibel
 	 *  @since  25.05.2010
 	 */
     public class BigLoadItem extends EventDispatcher {
@@ -163,11 +170,13 @@ package com.bigspaceship.loading
                 _loader.removeEventListener(IOErrorEvent.IO_ERROR,  _onFail);
                 _loader.removeEventListener(ProgressEvent.PROGRESS, _onProgress);
                 _loader.removeEventListener(Event.COMPLETE,         _onComplete);
+				_loader.removeEventListener(Event.OPEN,				dispatchEvent);
             } else
             {
                 _loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,    _onFail);
                 _loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS,   _onProgress);
                 _loader.contentLoaderInfo.removeEventListener(Event.COMPLETE,           _onComplete);
+				_loader.contentLoaderInfo.removeEventListener(Event.OPEN,				dispatchEvent);
             }
 
             _loader = null;
