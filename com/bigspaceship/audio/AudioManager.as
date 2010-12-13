@@ -150,13 +150,9 @@ package com.bigspaceship.audio{
 	     *  The <code>playSound()</code> method starts to play a sound. 
 	     *  Nothing is happening if sound is playing already.
 	     * 		
-		 *
 	     *  @param $id library id.  
-		 *
 	     *  @param $loops Specifies the number of loops.
-		 *
 	     *  @param $vol Specifies the volume.
-	     * 
  	     *  @param $restart Boolean to specify if sounds needs to restart if it's already playing.
 		 *
      	*/ 
@@ -177,18 +173,11 @@ package com.bigspaceship.audio{
 		/**
 	     *  The <code>playEffectSound()</code> method starts a sound to play.
 	     *	
-	     * 
-		 *
 	     *  @param $id library id.    
-		 *
 	     *  @param $killSameEffectSoundfirst Boolean to specify if sound needs to be stopped first if same sound is currently playing.
-		 *
 		 *  @param $loops Specifies the number of loops.
-		 * 
 	     *  @param $vol Specifies the volume.
-	     * 
 	     *  @param $panning
-		 *
 	     *  @return SoundChannel 
      	*/ 
 		public function playEffectSound($id:String, $killSameEffectSoundfirst:Boolean = false, $loops:int = 1, $vol:Number = 1, $panning:Number=0):SoundChannel{
@@ -210,13 +199,9 @@ package com.bigspaceship.audio{
 	     * 
 		 *
 	     *  @param $set An Array that specifies the set of Sounds to choose from. Array consists of Sound-Ids (Strings). The order of the aray is going to be changed.  
-		 *
 	     *  @param $nonStandard Specifies the number of excluding previously played sounds);
-		 *
 	     *  @param $vol Specifies the volume.
-		 *
 	     *  @param $loops Specifies the number of loops.
-		 *
 	     *  @return SoundChannel 
      	*/  
 		public function playRandomEffectSound($set:Array, $nonStandard:int = 2, $vol:Number = 1, $loops:int = 1):SoundChannel{
