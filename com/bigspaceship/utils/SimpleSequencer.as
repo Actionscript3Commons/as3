@@ -67,7 +67,16 @@ package com.bigspaceship.utils{
 		
 		private var _sprite:MovieClip = new MovieClip();
 		
-		private var _isCancelled:Boolean = false;
+		private var _isPaused:Boolean = false;
+		private var _isRunning:Boolean = false;
+		
+		
+		public function get isActive():Boolean{
+			return (!_isPaused && _countStep<_animationSteps_array.length);
+		}
+		public function get isPaused():Boolean{
+			return _isPaused;
+		}
 		
 		/**
 		 * The <code>SimpleSequencer</code> constructor
@@ -78,7 +87,6 @@ package com.bigspaceship.utils{
 		public function SimpleSequencer($id:String=''){
 			//creating an "unique" id for output-debugging reasons
 			_id = $id +'_'+ int(Math.random()*100);
-			
 			if(debug){
 				Out.debug(this, 'SimpleSequencer CONSTRUCTOR called, id:' +  _id);
 				_sprite.addEventListener(Event.ENTER_FRAME, _onEnterFrame_handler);
@@ -138,20 +146,27 @@ package com.bigspaceship.utils{
 		}
 		
 		/**
-		 * The <code>start</code> method starts the Sequence
+		 * The <code>pause</code> method pauses the Sequence
 		 * 
 		 */		
-		public function cancel():void{
-			_isCancelled = true;
+		public function pause():void{
+			_isPaused = true;
 		}
 		
 		/**
 		 * The <code>start</code> method starts the Sequence
 		 * 
-		 */		
-		public function start():void{
+		 */	
+		public function start($reset:Boolean = false):void{
+			_isPaused = false;
+			if($reset)_countStep = 0;
+			if(!_isRunning)_next();
+		}
+			
+		public function _next():void{
+			_isRunning = true;
 			if(_animationSteps_array.length > 0){
-				//sort array by stepId:
+				//ds: sort array by stepId:
 				_animationSteps_array.sortOn('stepId', Array.NUMERIC);
 
 				if(debug) Out.debug(this, 'START: '+_id+', steps: '+_animationSteps_array.length+', _countStep: '+_countStep+', stepId: '+_animationSteps_array[_countStep].stepId );
@@ -159,23 +174,20 @@ package com.bigspaceship.utils{
 				_parallelActions_array = new Array();
 				var i:int;
 				var animObj:Object;
-				//addEventlisteners
+				//ds: addEventlisteners
 				var len:uint = _animationSteps_array[_countStep].array.length;
-
 				for(i = 0; i < len; i++){
 					animObj = _animationSteps_array[_countStep].array[i];
 					switch(animObj.type){
 						case 'normal':
 							animObj.target.addEventListener(animObj.eventToListen, _onAnimationComplete);
 							break;
-						/* case 'bigTweenLite':
-							break; */
 						case 'asynch':
 							break;
 					}
 					newSemLockId();
 				}
-
+				//ds: call methods
 				for(i = 0; i < len; i++){
 					//if(debug) Out.status(this, "i: " + i);
 					animObj = _animationSteps_array[_countStep].array[i];
@@ -184,7 +196,6 @@ package com.bigspaceship.utils{
 						case 'asynch':
 							if(animObj.args && animObj.args.hasOwnProperty('delay')){
 								if(debug) Out.status(this, "delay: " + animObj.args.delay + ", _id = " + _id);
-
 								var timer:Timer = new Timer(animObj.args.delay, 1);
 								timer.addEventListener(TimerEvent.TIMER, _onTimerEvent_handler);
 								_timer_dic[timer] = animObj;
@@ -256,7 +267,12 @@ package com.bigspaceship.utils{
 				if(_countStep+1<_animationSteps_array.length){
 					_countStep+=1;
 					//start next step
-					start();
+					if(_isPaused){
+						//animation cancelled/paused
+						_onCancel();
+					}else{
+						_next();
+					}
 				}else{
 					//all animations complete
 					_onComplete();
@@ -265,11 +281,16 @@ package com.bigspaceship.utils{
 		}
 		
 		private function _onComplete():void{
-			if(debug){
-				Out.debug(this, 'COMPLETE id: '+ _id);
-			}
+			_isRunning = false;
+			if(debug){Out.debug(this, 'COMPLETE id: '+ _id);}
 			_sprite.removeEventListener(Event.ENTER_FRAME, _onEnterFrame_handler);
 			dispatchEvent(new Event(Event.COMPLETE));
+		}
+		private function _onCancel():void{
+			_isRunning = false;
+			if(debug)Out.debug(this, 'CANCELLED id: '+ _id);
+			_sprite.removeEventListener(Event.ENTER_FRAME, _onEnterFrame_handler);
+			dispatchEvent(new Event(Event.CANCEL));
 		}
 	}
 }
