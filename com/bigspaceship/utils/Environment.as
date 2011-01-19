@@ -54,6 +54,10 @@ package com.bigspaceship.utils{
 		public static function get DOMAIN():String{
 			return new LocalConnection().domain;
 		}
+		
+		public static function get IS_LOCAL():Boolean {
+			return (DOMAIN == "localhost");
+		}
 	
 		public static function get IS_AREA51():Boolean{
 			return (DOMAIN == "area51.bigspaceship.com");
