@@ -1,11 +1,11 @@
 /**
- * SimpleSequencer by Big Spaceship. 2008
+ * SimpleSequencer by Big Spaceship. 2008-2011
  *
  * To contact Big Spaceship, email info@bigspaceship.com or write to us at 45 Main Street #716, Brooklyn, NY, 11201.
  * Visit http://labs.bigspaceship.com for documentation, updates and more free code.
  *
  *
- * Copyright (c) 2009 Big Spaceship, LLC
+ * Copyright (c) 2008-2011 Big Spaceship, LLC
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,11 +44,18 @@ package com.bigspaceship.utils{
 	[Event(name="complete", type="flash.events.Event")]
 	
 	/**
+	 * Dispatched when a sequence deactivates but it is not complete yet e.g. when currently running step is complete after pause() is called. 
+	 *
+	 * @eventType flash.events.Event
+	 **/
+	[Event(name="deactivate", type="flash.events.Event")]
+	
+	/**
 	 * SimpleSequencer
 	 *
-	 * @copyright 		2008 Big Spaceship, LLC
+	 * @copyright 		2008-2011 Big Spaceship, LLC
 	 * @author			Daniel Scheibel, Stephen Koch
-	 * @version			1.0 
+	 * @version			2.0 
 	 * @langversion		ActionScript 3.0 			
 	 * @playerversion 	Flash 9.0.0
 	 *
@@ -68,11 +75,17 @@ package com.bigspaceship.utils{
 		private var _sprite:MovieClip = new MovieClip();
 		
 		private var _isPaused:Boolean = false;
-		private var _isRunning:Boolean = false;
+		private var _isActive:Boolean = false;
 		
 		
+		public function get id():String{
+			return _id;
+		}
+		public function set id($value:String):void{
+			return _id = $value;
+		}
 		public function get isActive():Boolean{
-			return (!_isPaused && _countStep<_animationSteps_array.length);
+			return _isActive;
 		}
 		public function get isPaused():Boolean{
 			return _isPaused;
@@ -132,6 +145,29 @@ package com.bigspaceship.utils{
 			_addStep(anim);
 		}
 		
+		/**
+		 * The <code>pause</code> method deactivates the sequence after the currently processed step.
+		 * 
+		 */		
+		public function pause():void{
+			_isPaused = true;
+		}
+		
+		/**
+		 * The <code>start</code> method starts the Sequence if it's not active already and sets isPaused flag to false.   
+		 * 
+		 * @param $reset			A Boolean value that determines if sequence starts from the beginning or resumes were left of after being paused.
+		 * 							If true the next step will be the first step in the sequence. 							
+		 * 
+		 */	
+		public function start($reset:Boolean = false):void{
+			_isPaused = false;
+			if($reset)_countStep = 0;
+			if(!_isActive)_next();
+		}
+		
+		
+		
 		private function _addStep($anim_obj:Object):void{
 			var stepExists:Boolean = false;
 			for(var i:int=0; i<_animationSteps_array.length; i++){
@@ -144,27 +180,9 @@ package com.bigspaceship.utils{
 				_animationSteps_array.push({stepId:$anim_obj.stepId, array:new Array($anim_obj)});
 			}
 		}
-		
-		/**
-		 * The <code>pause</code> method pauses the Sequence
-		 * 
-		 */		
-		public function pause():void{
-			_isPaused = true;
-		}
-		
-		/**
-		 * The <code>start</code> method starts the Sequence
-		 * 
-		 */	
-		public function start($reset:Boolean = false):void{
-			_isPaused = false;
-			if($reset)_countStep = 0;
-			if(!_isRunning)_next();
-		}
 			
-		public function _next():void{
-			_isRunning = true;
+		private function _next():void{
+			_isActive = true;
 			if(_animationSteps_array.length > 0){
 				//ds: sort array by stepId:
 				_animationSteps_array.sortOn('stepId', Array.NUMERIC);
@@ -269,7 +287,7 @@ package com.bigspaceship.utils{
 					//start next step
 					if(_isPaused){
 						//animation cancelled/paused
-						_onCancel();
+						_onPause();
 					}else{
 						_next();
 					}
@@ -281,16 +299,18 @@ package com.bigspaceship.utils{
 		}
 		
 		private function _onComplete():void{
-			_isRunning = false;
+			_isActive = false;
+			_isPaused = false;
+			_countStep = 0;
 			if(debug){Out.debug(this, 'COMPLETE id: '+ _id);}
 			_sprite.removeEventListener(Event.ENTER_FRAME, _onEnterFrame_handler);
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
-		private function _onCancel():void{
-			_isRunning = false;
-			if(debug)Out.debug(this, 'CANCELLED id: '+ _id);
+		private function _onPause():void{
+			_isActive = false;
+			if(debug)Out.debug(this, 'PAUSED and DEACTIVE id: '+ _id);
 			_sprite.removeEventListener(Event.ENTER_FRAME, _onEnterFrame_handler);
-			dispatchEvent(new Event(Event.CANCEL));
+			dispatchEvent(new Event(Event.DEACTIVATE));
 		}
 	}
 }
